@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureScan | Spam Detection AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --primary-blue: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 2px 2px, #1e293b 1px, transparent 0);
+            background-size: 40px 40px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        /* Detection mode expands the container */
+        .container.detection-mode {
+            max-width: 700px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        /* Form Styling */
+        .input-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        textarea {
+            height: 180px;
+            resize: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-blue);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Results Styling */
+        .result {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .spam {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+
+        .ham {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid #334155;
+            padding-top: 20px;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="login-section" class="container">
+    <h1>Security Portal</h1>
+    <p class="subtitle">Access the AI Spam Analysis Engine</p>
+    
+    <form id="login-form">
+        <div class="input-group">
+            <label>ADMIN EMAIL</label>
+            <input type="email" placeholder="admin@securescan.ai" required>
+        </div>
+        <div class="input-group">
+            <label>ACCESS KEY</label>
+            <input type="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit">Initialize Dashboard</button>
+    </form>
+    
+    <footer>
+        Authorized Personnel Only
+    </footer>
+</div>
+
+<div id="detection-section" class="container detection-mode hidden">
+    <h1>Spam Detection</h1>
+    <p class="subtitle">Enter email headers or body text for deep-packet inspection</p>
+
+    <form method="POST" action="/">
+        <div class="input-group">
+            <textarea name="email" placeholder="Paste suspicious email content here..." required></textarea>
+        </div>
+        <button type="submit">Analyze Threat Level</button>
+    </form>
+
+    {% if prediction %}
+        {% if "Spam" in prediction %}
+            <div class="result spam">⚠️ Threat Detected: {{ prediction }}</div>
+        {% else %}
+            <div class="result ham">✅ Verified Secure: {{ prediction }}</div>
+        {% endif %}
+    {% endif %}
+
+    <footer>
+        <span style="color: var(--accent-green)">●</span> System Online | Powered by Machine Learning
+    </footer>
+</div>
+
+<script>
+    // Simple frontend logic to handle view switching
+    // In a real Flask app, you'd handle this via routes or session state
+    const loginForm = document.getElementById('login-form');
+    const loginSection = document.getElementById('login-section');
+    const detectionSection = document.getElementById('detection-section');
+
+    // To keep the user on the detection page after Flask reloads the page with results
+    const urlParams = new URLSearchParams(window.location.search);
+    // This is a placeholder logic: Usually, you'd check if a Flask variable 'prediction' exists
+    const hasPrediction = "{{ prediction }}".length > 0 && "{{ prediction }}" !== "None";
+
+    if (hasPrediction) {
+        loginSection.classList.add('hidden');
+        detectionSection.classList.remove('hidden');
+    }
+
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        loginSection.style.opacity = '0';
+        setTimeout(() => {
+            loginSection.classList.add('hidden');
+            detectionSection.classList.remove('hidden');
+        }, 400);
+    });
+</script>
+
+</body>
+</html>
